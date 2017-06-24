@@ -115,7 +115,7 @@ public class RecipeManager extends JavaPlugin {
         getCommand("rmgetbook").setExecutor(new GetBookCommand());
         getCommand("rmbooks").setExecutor(new BooksCommand());
         getCommand("rmupdate").setExecutor(new UpdateCommand());
-        getCommand("rmcreaterecipe").setExecutor(new CreateRecipeCommand());
+        getCommand("rmruntests").setExecutor(new RunTestsCommand());
     }
 
     @Override
