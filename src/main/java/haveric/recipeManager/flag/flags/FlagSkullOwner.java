@@ -5,10 +5,13 @@ import haveric.recipeManager.flag.Flag;
 import haveric.recipeManager.flag.FlagType;
 import haveric.recipeManager.flag.args.Args;
 import haveric.recipeManager.recipes.ItemResult;
+import haveric.recipeManager.tools.Version;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.SkullType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -95,14 +98,15 @@ public class FlagSkullOwner extends Flag {
         }
 
         String owner;
+        OfflinePlayer offlinePlayer = null;
         if (getOwner().equalsIgnoreCase("{player}")) {
             if (!a.hasPlayerUUID()) {
                 a.addCustomReason("Needs player UUID!");
                 return;
             }
 
-            OfflinePlayer player = Bukkit.getOfflinePlayer(a.playerUUID());
-            owner = player.getName();
+            offlinePlayer = Bukkit.getOfflinePlayer(a.playerUUID());
+            owner = offlinePlayer.getName();
         } else {
             owner = getOwner();
         }
@@ -124,10 +128,16 @@ public class FlagSkullOwner extends Flag {
             // Sets the block to the skull and retrieves the updated ItemStack from the drops.
             // This is needed because setOwner will not update the inventory texture.
             block.setType(Material.SKULL);
-            block.setData((byte) 3);
-            Skull s = (Skull) loc.getBlock().getState();
-            s.setOwner(owner);
-            s.update();
+            if (Version.has1_12Support() && offlinePlayer != null) {
+                Skull skull = (Skull) block;
+                skull.setSkullType(SkullType.PLAYER);
+                skull.setOwningPlayer(offlinePlayer);
+            } else {
+                block.setData((byte) 3);
+                Skull s = (Skull) loc.getBlock().getState();
+                s.setOwner(owner);
+                s.update();
+            }
 
             Iterator<ItemStack> iter = loc.getBlock().getDrops().iterator();
             ItemStack result = iter.next();

@@ -1,5 +1,6 @@
 package haveric.recipeManager;
 
+import com.google.common.base.Strings;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -10,12 +11,12 @@ import java.util.*;
 
 public class TestMetaItem implements ItemMeta, Repairable {
     private String displayName;
-    private String localizedName;
+    private String locName;
     private List<String> lores = new ArrayList<>();
     private Map<Enchantment, Integer> enchantments = new HashMap<>();
     private Set<ItemFlag> flags = new HashSet<>();
     private int repairCost;
-
+    private int hideFlag;
     private boolean unbreakable;
 
     public TestMetaItem(TestMetaItem meta) {
@@ -23,6 +24,8 @@ public class TestMetaItem implements ItemMeta, Repairable {
             return;
         }
         setDisplayName(meta.getDisplayName());
+        this.locName = meta.locName;
+        
         setLore(meta.getLore());
 
         this.enchantments = new HashMap<>(meta.getEnchants());
@@ -32,6 +35,7 @@ public class TestMetaItem implements ItemMeta, Repairable {
         }
 
         this.repairCost = meta.getRepairCost();
+        this.hideFlag = meta.hideFlag;
         this.unbreakable = meta.unbreakable;
     }
 
@@ -48,6 +52,21 @@ public class TestMetaItem implements ItemMeta, Repairable {
     @Override
     public void setDisplayName(String name) {
         displayName = name;
+    }
+
+    @Override
+    public void setLocalizedName(String name) {
+        this.locName = name;
+    }
+
+    @Override
+    public String getLocalizedName() {
+        return this.locName;
+    }
+
+    @Override
+    public boolean hasLocalizedName() {
+        return this.locName != null;
     }
 
     @Override
@@ -173,7 +192,7 @@ public class TestMetaItem implements ItemMeta, Repairable {
     }
 
     boolean isEmpty() {
-        return !(hasDisplayName() || hasEnchants() || hasLore() || hasRepairCost() || isUnbreakable());
+        return !(hasDisplayName() || hasLocalizedName() || hasEnchants() || hasLore() || hasRepairCost() || hideFlag != 0 || isUnbreakable());
     }
 
     @Override
@@ -188,9 +207,11 @@ public class TestMetaItem implements ItemMeta, Repairable {
 
     boolean equalsCommon(TestMetaItem that) {
         return ((this.hasDisplayName() ? that.hasDisplayName() && this.displayName.equals(that.displayName) : !that.hasDisplayName()))
+                && (this.hasLocalizedName()? that.hasLocalizedName()&& this.locName.equals(that.locName) : !that.hasLocalizedName())
                 && (this.hasEnchants() ? that.hasEnchants() && this.enchantments.equals(that.enchantments) : !that.hasEnchants())
                 && (this.hasLore() ? that.hasLore() && this.lores.equals(that.lores) : !that.hasLore())
                 && (this.hasRepairCost() ? that.hasRepairCost() && this.repairCost == that.repairCost : !that.hasRepairCost())
+                && (this.hideFlag == that.hideFlag)
                 && (this.isUnbreakable() == that.isUnbreakable());
     }
 
@@ -210,20 +231,5 @@ public class TestMetaItem implements ItemMeta, Repairable {
         }
 
         return false;
-    }
-
-    @Override
-    public void setLocalizedName(String name) {
-        this.localizedName = name;
-    }
-
-    @Override
-    public String getLocalizedName() {
-        return this.localizedName;
-    }
-
-    @Override
-    public boolean hasLocalizedName() {
-        return this.localizedName != null;
     }
 }

@@ -27,6 +27,11 @@ public class TestOfflinePlayer implements OfflinePlayer {
     public boolean isBanned() {
         return false;
     }
+    
+    @Deprecated
+    public void setBanned(boolean value) {
+        
+    }
 
     @Override
     public boolean isWhitelisted() {
