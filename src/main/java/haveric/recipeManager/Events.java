@@ -104,6 +104,18 @@ public class Events implements Listener {
             if (bukkitRecipe == null) {
                 return; // Bukkit recipe is null ! skip it
             }
+            
+            // TODO: debug
+            if (bukkitRecipe instanceof ShapedRecipe) {
+                System.out.println(" using recipe: " + ((ShapedRecipe) bukkitRecipe).getKey().toString());
+            } else if (bukkitRecipe instanceof ShapelessRecipe) {
+                System.out.println(" using recipe: " + ((ShapelessRecipe) bukkitRecipe).getKey().toString());
+            }
+            if (RecipeManager.getRecipes().isCustomRecipe(bukkitRecipe)) {
+                System.out.println("  is custom!");
+                System.out.println("   id: " + Tools.getRecipeIdFromItem(bukkitRecipe.getResult()));
+            }
+            // TODO: enddebug
 
             ItemResult result;
             if (inv.getResult() == null) {
@@ -121,6 +133,8 @@ public class Events implements Listener {
             if (recipe == null) {
                 return; // not a custom recipe or recipe not found, no need to move on
             }
+            
+            System.out.println(" using RM recipe: " + recipe.getName());
 
             Args a = Args.create().player(player).inventory(inv).location(location).recipe(recipe).build();
 

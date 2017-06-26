@@ -338,6 +338,13 @@ public class Recipes {
             Recipe bukkitRecipe = recipe.getBukkitRecipe(false);
 
             if (bukkitRecipe != null) {
+                //TODO: debug
+                if (bukkitRecipe instanceof ShapedRecipe) {
+                    System.out.println(" adding recipe: " + ((ShapedRecipe) bukkitRecipe).getKey().toString());
+                } else if (bukkitRecipe instanceof ShapelessRecipe) {
+                    System.out.println(" adding recipe: " + ((ShapelessRecipe) bukkitRecipe).getKey().toString());
+                }
+                //TODO: debug done
                 Bukkit.addRecipe(bukkitRecipe);
             }
         }
@@ -371,8 +378,11 @@ public class Recipes {
      * @return removed recipe or null if not found
      */
     public Recipe removeRecipe(BaseRecipe recipe) {
-        if (recipe.hasFlag(FlagType.REMOVE) || recipe.hasFlag(FlagType.OVERRIDE)) {
-            Bukkit.getServer().addRecipe(recipe.getBukkitRecipe(false));
+        if (recipe.hasFlag(FlagType.OVERRIDE)) { //  recipe.hasFlag(FlagType.REMOVE) || 
+            //TODO: Debug
+            System.out.println("Formerly Adding recipe to remove a recipe: " + recipe.getName());
+            //TODO: End Edbug
+            //Bukkit.getServer().addRecipe(recipe.getBukkitRecipe(false));
         }
 
         index.remove(recipe); // Remove from main index
