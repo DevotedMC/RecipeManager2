@@ -335,18 +335,19 @@ public class Recipes {
         }
 
         // Remove original recipe
-        if (recipe.hasFlag(FlagType.REMOVE) || (!Version.has1_12Support() && recipe.hasFlag(FlagType.OVERRIDE))) {
+        if (recipe.hasFlag(FlagType.REMOVE) || recipe.hasFlag(FlagType.OVERRIDE)) {
             MessageSender.getInstance().log("Recipes.registerRecipe(" + recipe.getName() + ", RMCRecipeInfo[" + info.getAdder() + "," + info.getOwner() + "]) - Remove vanilla recipe and set as Bukkit recipe.");
             recipe.setBukkitRecipe(Vanilla.removeCustomRecipe(recipe));
         }
         
         // 1.12 support hook for override
         if (Version.has1_12Support() && recipe.hasFlag(FlagType.OVERRIDE)) {
-            recipe.setBukkitRecipe(Vanilla.replaceCustomRecipe(recipe));
+            recipe.setBukkitRecipe(null);
+            // clear the recipe so the next clause regenerates it.
         }
 
-        // Add to server if applicable -- for 1.12, replace is entirely handled by the prior clause.
-        if (!recipe.hasFlag(FlagType.REMOVE) && (!(Version.has1_12Support() && recipe.hasFlag(FlagType.OVERRIDE)))) {
+        // Add to server if applicable
+        if (!recipe.hasFlag(FlagType.REMOVE) ) {
             MessageSender.getInstance().log("Recipes.registerRecipe(" + recipe.getName() + ", RMCRecipeInfo[" + info.getAdder() + "," + info.getOwner() + "]) - set up / retrieve bukkit recipe and install");
             Recipe bukkitRecipe = recipe.getBukkitRecipe(false);
 
