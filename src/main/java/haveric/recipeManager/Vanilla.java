@@ -1,6 +1,8 @@
 package haveric.recipeManager;
 
 import com.google.common.collect.ImmutableMap;
+
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManager.recipes.*;
 import haveric.recipeManager.tools.RecipeIteratorV1_12;
 import haveric.recipeManager.tools.Tools;
@@ -232,6 +234,35 @@ public class Vanilla {
     protected static void clean() {
         initialRecipes.clear();
     }
+    
+    /**
+     * Replaces a recipe with a RecipeManager recipe. V1_12 support only!
+     * 
+     * @param recipe
+     *            RecipeManager recipe
+     * @return replaced recipe or null if not found.
+     */
+    public static Recipe replaceCustomRecipe(BaseRecipe recipe) {
+        if (!Version.has1_12Support()) return null;
+        MessageSender.getInstance().info("  Attempting to replace " + recipe.getName());
+        
+        if (recipe instanceof CraftRecipe) {
+            return replaceCraftRecipe((CraftRecipe) recipe);
+        }
+
+        if (recipe instanceof CombineRecipe) {
+            return replaceCombineRecipe((CombineRecipe) recipe);
+        }
+
+        if (recipe instanceof SmeltRecipe) {
+            return replaceSmeltRecipe((SmeltRecipe) recipe);
+        }
+        
+        MessageSender.getInstance().info("  Failed to replace " + recipe.getName());
+
+        return null;
+
+    }
 
     /**
      * Removes a RecipeManager recipe from the <b>server</b>
@@ -346,6 +377,46 @@ public class Vanilla {
     }
 
     /**
+     * V1_12 or newer supported only.
+     * Replaces a RecipeManager recipe on the <b>server</b>
+     *
+     * @param recipe
+     *            RecipeManager recipe
+     * @return replaced recipe or null if not found
+     */
+    public static Recipe replaceCraftRecipe(CraftRecipe recipe) {
+        MessageSender.getInstance().info("  Attempting to replace craft recipe " + recipe.getName());
+        RecipeIteratorV1_12 iterator = new RecipeIteratorV1_12(Bukkit.recipeIterator());
+        ShapedRecipe sr;
+        Recipe r;
+        String[] sh;
+
+        int height = recipe.getHeight();
+        int width = recipe.getWidth();
+
+        while (iterator.hasNext()) {
+            try {
+                r = iterator.next();
+
+                if (r instanceof ShapedRecipe && !(r instanceof FurnaceRecipe)) {
+                    sr = (ShapedRecipe) r;
+                    sh = sr.getShape();
+
+                    if (sh.length == height && sh[0].length() == width && ToolsRecipeV1_12.matches(recipe, r)) {
+                        iterator.replace(recipe);
+                        iterator.finish();
+                        return sr;
+                    }
+                }
+            } catch (NullPointerException e) {
+                // Catch any invalid Bukkit recipes
+            }
+        }
+        MessageSender.getInstance().info("  Failed to replace " + recipe.getName());
+        return null;
+    }
+
+    /**
      * Removes a Bukkit recipe from the <b>server</b><br>
      * <b>Note: This method converts the Bukkit recipe to RecipeManager recipe. If you have the CombineRecipe object you should use {@link #removeCombineRecipe(CombineRecipe)}</b>
      *
@@ -401,6 +472,42 @@ public class Vanilla {
         return null;
     }
 
+    /**
+     * V1_12 or newer supported only.
+     * Replaces a RecipeManager recipe from the <b>server</b>
+     *
+     * @param recipe
+     *            RecipeManager recipe
+     * @return replaced recipe or null if not found
+     */
+    public static Recipe replaceCombineRecipe(CombineRecipe recipe) {
+        MessageSender.getInstance().info("  Attempting to replace combine recipe " + recipe.getName());
+        RecipeIteratorV1_12 iterator = new RecipeIteratorV1_12(Bukkit.recipeIterator());
+        ShapelessRecipe sr;
+        Recipe r;
+
+        while (iterator.hasNext()) {
+            try {
+                r = iterator.next();
+
+                if (r instanceof ShapelessRecipe) {
+                    sr = (ShapelessRecipe) r;
+
+                    if (ToolsRecipeV1_12.matches(recipe, r)) {
+                        iterator.replace(recipe);
+                        iterator.finish();
+                        return sr;
+                    }
+                }
+            } catch (NullPointerException e) {
+                // Catch any invalid Bukkit recipes
+            }
+        }
+        
+        MessageSender.getInstance().info("  Failed to replace " + recipe.getName());
+        return null;
+    }
+    
     /**
      * Removes a Bukkit furnace recipe from the <b>server</b><br>
      * Unlike {@link #removeShapedRecipe(ShapedRecipe)} and {@link #removeShapelessRecipe(ShapelessRecipe)} this method does not convert recipes since it only needs the ingredient.
@@ -459,6 +566,47 @@ public class Vanilla {
     }
 
     /**
+     * V1_12 or newer supported only.
+     * Replaces a RecipeManager smelt recipe from the <b>server</b>
+     *
+     * @param recipe
+     *            RecipeManager recipe
+     * @return replaced recipe or null if not found
+     */
+    public static Recipe replaceSmeltRecipe(SmeltRecipe recipe) {
+        MessageSender.getInstance().info("  Attempting to replace smelt recipe " + recipe.getName());
+        return replaceFurnaceRecipe(recipe, recipe.getIngredient());
+    }
+
+    private static Recipe replaceFurnaceRecipe(SmeltRecipe recipe, ItemStack ingredient) {
+        RecipeIteratorV1_12 iterator = new RecipeIteratorV1_12(Bukkit.recipeIterator());
+        FurnaceRecipe fr;
+        Recipe r;
+
+        while (iterator.hasNext()) {
+            try {
+                r = iterator.next();
+
+                if (r instanceof FurnaceRecipe) {
+                    fr = (FurnaceRecipe) r;
+
+                    if (ingredient.getType() == fr.getInput().getType()) { // still works on compare same way in v1.12
+                        iterator.replace(recipe);
+                        iterator.finish();
+                        return fr;
+                    }
+                }
+            } catch (NullPointerException e) {
+                // Catch any invalid Bukkit recipes
+            }
+        }
+
+        MessageSender.getInstance().info("  Failed to replace furnace recipe for " + ingredient.toString());
+        return null;
+    }
+    
+    
+    /**
      * Remove all RecipeManager recipes from the server.
      */
     public static void removeCustomRecipes() {
@@ -491,6 +639,7 @@ public class Vanilla {
      * Remove all recipes from the server except special ones
      */
     public static void removeAllButSpecialRecipes() {
+        MessageSender.getInstance().log("Vanilla.removeAllButSpecialRecipes()");
         Iterator<Recipe> iterator = Bukkit.recipeIterator();
         Recipe recipe;
 
@@ -521,7 +670,18 @@ public class Vanilla {
      */
     public static void restoreInitialRecipes() {
     	// TODO: 1.12 this won't work, refactor to skip the bukkit recipe...
-    	if (Version.has1_12Support()) {
+        MessageSender.getInstance().log("RecipeManager.restoreInitialRecipes()");
+        /* TODO: RE-EVAL 
+         * consider using variation of this?
+         *         if (Version.has1_12Support()) {
+            try {
+                Bukkit.getServer().reloadData(); 
+            } catch (NullPointerException npe) {
+                // During test running.
+            }
+        }
+         */
+        if (Version.has1_12Support()) {
     		try { RecipeManager.getPlugin().getLogger().info("  Recipe fidelity lost due to restore Initial Recipes");} catch (Exception e){}
     	}
         for (Entry<BaseRecipe, RMCRecipeInfo> entry : initialRecipes.entrySet()) {
@@ -534,6 +694,17 @@ public class Vanilla {
      * Adds all recipes except special that already existed when the plugin was enabled.
      */
     public static void restoreAllButSpecialRecipes() {
+        MessageSender.getInstance().log("RecipeManager.restoreAllButSpecialRecipes()");
+        /* TODO: RE-EVAL 
+         * consider using variation of this?
+         *         if (Version.has1_12Support()) {
+            try {
+                Bukkit.getServer().reloadData(); 
+            } catch (NullPointerException npe) {
+                // During test running.
+            }
+        }
+         */
     	// TODO: 1.12 this won't work, refactor to skip the bukkit recipe...?
     	if (Version.has1_12Support()) {
     		try { RecipeManager.getPlugin().getLogger().info("  Recipe fidelity lost due to restore Initial Recipes excluding specials");} catch (Exception e){}

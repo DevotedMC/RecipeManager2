@@ -4,6 +4,7 @@ import haveric.recipeManager.ErrorReporter;
 import haveric.recipeManager.RecipeRegistrator;
 import haveric.recipeManager.flag.FlagType;
 import haveric.recipeManager.flag.Flags;
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManager.tools.Tools;
 import org.bukkit.Material;
 
@@ -28,6 +29,7 @@ public abstract class BaseRecipeParser {
     public abstract boolean parseRecipe(int directiveLine) throws Exception;
 
     protected boolean parseResults(BaseRecipe recipe, List<ItemResult> results) {
+        MessageSender.getInstance().log("BaseRecipeParser.parseResults(" + recipe.getName() + ",list)");
         boolean allowAir = true;
         boolean oneResult = false;
 

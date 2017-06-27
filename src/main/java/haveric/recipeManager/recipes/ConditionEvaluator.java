@@ -6,6 +6,7 @@ import haveric.recipeManager.RecipeRegistrator;
 import haveric.recipeManager.Settings;
 import haveric.recipeManager.flag.FlagType;
 import haveric.recipeManager.flag.flags.FlagOverride;
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManager.tools.ToolsRecipeV1_12;
 import haveric.recipeManager.tools.Version;
 import haveric.recipeManagerCommon.recipes.RMCRecipeInfo;
@@ -43,7 +44,10 @@ public class ConditionEvaluator {
     }
 
     public boolean recipeExists(BaseRecipe recipe, int directiveLine, String currentFile) {
+        MessageSender.getInstance().log("ConditionEvaluator.recipeExists(" + recipe.getName() + "," + directiveLine + "," + currentFile + ")");
         ErrorReporter.getInstance().setLine(directiveLine); // set the line to point to the directive rather than the last read line!
+        
+        MessageSender.getInstance().log("ConditionEvaluator.getRecipeFromMap(" + recipe.getName() + ",RecipeManager.getRecipes().getIndex())");
         RMCRecipeInfo registered = getRecipeFromMap(recipe, RecipeManager.getRecipes().getIndex());
 
         if (recipe.hasFlag(FlagType.OVERRIDE) || recipe.hasFlag(FlagType.REMOVE)) {
@@ -81,6 +85,7 @@ public class ConditionEvaluator {
             }
         }
 
+        MessageSender.getInstance().log("ConditionEvaluator.getRecipeFromMap(" + recipe.getName() + ",registrator.getQueuedRecipes())");
         RMCRecipeInfo queued = getRecipeFromMap(recipe, registrator.getQueuedRecipes());
 
         if (queued != null) {
@@ -102,12 +107,14 @@ public class ConditionEvaluator {
     			if (entry.getValue().getOwner() == RecipeOwner.MINECRAFT && !entry.getKey().isVanillaSpecialRecipe()) {
     				Recipe bukkit = entry.getKey().getBukkitRecipe(true);
     				if (ToolsRecipeV1_12.matches(recipe, bukkit)) {
+    				    MessageSender.getInstance().log("Found v1_12 recipe: " + entry.getKey().getName());
     					return entry.getValue();
     				} else if (recipe instanceof CraftRecipe) {
     					CraftRecipe cr = (CraftRecipe) recipe;
     					cr.setMirrorShape(true);
     					
     					if (ToolsRecipeV1_12.matches(cr, bukkit)) {
+    					    MessageSender.getInstance().log("Found v1_12 mirror recipe: " + entry.getKey().getName());
     						return entry.getValue();
     					}
     				}

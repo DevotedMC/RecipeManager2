@@ -3,6 +3,7 @@ package haveric.recipeManager.recipes;
 import haveric.recipeManager.ErrorReporter;
 import haveric.recipeManager.RecipeRegistrator;
 import haveric.recipeManager.flag.Flags;
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManager.tools.Tools;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -14,6 +15,7 @@ public class RemoveResultsParser extends BaseRecipeParser {
 
     @Override
     public boolean parseRecipe(int directiveLine) throws Exception {
+        MessageSender.getInstance().log("RemoveResultsParser.parseRecipe(" + directiveLine + ")");
         RemoveResultRecipe recipe;
         int added = 0;
 

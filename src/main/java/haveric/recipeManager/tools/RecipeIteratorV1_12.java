@@ -120,8 +120,10 @@ public class RecipeIteratorV1_12 implements Iterator<Recipe> {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            break;
         case CUSTOM:
             recipeSmeltingCustom.add(removeItem);
+            break;
         case VANILLA:
             recipeSmeltingVanilla.add(removeItem);
         }
@@ -150,22 +152,24 @@ public class RecipeIteratorV1_12 implements Iterator<Recipe> {
                     e.printStackTrace();
                 }
             } else {
-                throw new IllegalStateException("You cannot replace a crafting recipe with a smelting recipe!");
+                throw new IllegalStateException("You cannot replace a crafting recipe with a " + recipe.getClass().getName() + " recipe!");
             }
+            break;
         case CUSTOM: // furnace recipes are safe to just remove and replace like normal, but we'll do 'em in place 
             // just to be safe.
             if (recipe instanceof SmeltRecipe) {
                 recipeSmeltingCustom.add(removeItem);
                 smeltingCustomReplace.put(removeItem, recipe);
             } else {
-                throw new IllegalStateException("You cannot replace a custom smelting recipe with a crafting recipe!");
+                throw new IllegalStateException("You cannot replace a custom smelting recipe with a " + recipe.getClass().getName() + " recipe!");
             }
+            break;
         case VANILLA:
             if (recipe instanceof SmeltRecipe) {
                 recipeSmeltingVanilla.add(removeItem);
                 smeltingVanillaReplace.put(removeItem, recipe);
             } else {
-                throw new IllegalStateException("You cannot replace a vanilla smelting recipe with a crafting recipe!");
+                throw new IllegalStateException("You cannot replace a vanilla smelting recipe with a " + recipe.getClass().getName() + " recipe!");
             }
         }
         

@@ -32,9 +32,11 @@ public class ToolsRecipeV1_12 {
                 // recipes are indexed by input, not result. So, if you overlap on input we don't care about output in terms of
                 // the server's understanding of recipes.
                 return furnaceBase.getIngredient().getType() == furnaceRecipe.getInput().getType()
-                        && (furnaceBase.getIngredient().getDurability() == Vanilla.DATA_WILDCARD || furnaceBase
-                                .getIngredient().getDurability() == furnaceRecipe.getInput().getDurability());
+                        && (furnaceBase.getIngredient().getDurability() == Vanilla.DATA_WILDCARD || 
+                            furnaceRecipe.getInput().getDurability() == Vanilla.DATA_WILDCARD ||
+                            furnaceBase.getIngredient().getDurability() == furnaceRecipe.getInput().getDurability());
             }
+            return false;
         } else if (bukkitRecipe instanceof CraftShapedRecipe) {
             CraftShapedRecipe shapedRecipe = (CraftShapedRecipe) bukkitRecipe;
             if (baseRecipe instanceof CraftRecipe) {
@@ -133,6 +135,7 @@ public class ToolsRecipeV1_12 {
                     }
                 }
             }
+            return false;
         } else if (bukkitRecipe instanceof CraftShapelessRecipe) {
             CraftShapelessRecipe shapelessRecipe = (CraftShapelessRecipe) bukkitRecipe;
             if (baseRecipe instanceof CombineRecipe) {
@@ -190,6 +193,7 @@ public class ToolsRecipeV1_12 {
                     e.printStackTrace();
                 }
             }
+            return false;
         }
 
         return false;

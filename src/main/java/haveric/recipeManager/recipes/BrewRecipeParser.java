@@ -4,6 +4,7 @@ import haveric.recipeManager.ErrorReporter;
 import haveric.recipeManager.RecipeRegistrator;
 import haveric.recipeManager.Vanilla;
 import haveric.recipeManager.flag.Flags;
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManager.tools.Tools;
 import haveric.recipeManagerCommon.util.ParseBit;
 import org.bukkit.inventory.ItemStack;
@@ -18,6 +19,7 @@ public class BrewRecipeParser extends BaseRecipeParser {
 
     @Override
     public boolean parseRecipe(int directiveLine) throws Exception {
+        MessageSender.getInstance().log("BrewRecipeParser.parseRecipe(" + directiveLine + ")");
         BrewRecipe recipe = new BrewRecipe();
         this.reader.parseFlags(recipe.getFlags());
 

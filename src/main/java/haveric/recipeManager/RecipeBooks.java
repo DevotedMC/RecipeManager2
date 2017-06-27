@@ -227,6 +227,7 @@ public class RecipeBooks {
     }
 
     private void initBookRecipes(CommandSender sender, File file) {
+        MessageSender.getInstance().log("RecipeBooks.initBookRecipes(sender," + file.toString() + ")");
         ErrorReporter.getInstance().setFile(file.getName());
 
         // Loading YML file

@@ -4,6 +4,7 @@ import haveric.recipeManager.ErrorReporter;
 import haveric.recipeManager.Files;
 import haveric.recipeManager.RecipeRegistrator;
 import haveric.recipeManager.flag.Flags;
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManagerCommon.util.RMCUtil;
 
 import java.io.BufferedReader;
@@ -23,6 +24,7 @@ public class RecipeFileParser {
     }
 
     public void parseFile(String root, String fileName) throws Throwable {
+        MessageSender.getInstance().log("RecipeFileParser.parseFile(" + root + ", " + fileName + ")");
         BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(root + fileName)));
 
         currentFile = RMCUtil.removeExtensions(fileName, Files.FILE_RECIPE_EXTENSIONS);
@@ -37,7 +39,7 @@ public class RecipeFileParser {
         RecipeFileReader fileReader = new RecipeFileReader(reader, fileName);
 
         fileReader.parseFlags(fileFlags); // parse file header flags that apply to all recipes
-
+        MessageSender.getInstance().log("RecipeFileParser.parseFile() fileFlags: " + fileFlags.toString());
 
         String recipeName = null;
         while (fileReader.searchRecipes()) { // search for recipes...
@@ -52,6 +54,7 @@ public class RecipeFileParser {
 
             BaseRecipeParser parser = recipeParserFactory.getParser(directive, fileReader, recipeName, fileFlags, registrator);
             if (parser != null) {
+                MessageSender.getInstance().log("RecipeFileParser.parseFile() parser.class: " + parser.getClass().getCanonicalName() + ")");
                 added = parser.parseRecipe(directiveLine);
             }
 

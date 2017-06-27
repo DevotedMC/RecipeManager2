@@ -54,7 +54,8 @@ public class MessageSender extends AbstractMessageSender {
     }
 
     public void log(String message) {
-        Bukkit.getLogger().fine(RMCUtil.parseColors("[RecipeManager] " + message, true));
+        //TODO put back to fine
+        Bukkit.getLogger().info(RMCUtil.parseColors("[RecipeManager] " + message, true));
     }
 
     public void sendAndLog(CommandSender sender, String message) {

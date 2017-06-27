@@ -5,6 +5,7 @@ import haveric.recipeManager.RecipeRegistrator;
 import haveric.recipeManager.Vanilla;
 import haveric.recipeManager.flag.FlagType;
 import haveric.recipeManager.flag.Flags;
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManager.tools.Tools;
 import haveric.recipeManagerCommon.util.ParseBit;
 import org.bukkit.Material;
@@ -20,7 +21,7 @@ public class CombineRecipeParser extends BaseRecipeParser {
 
     @Override
     public boolean parseRecipe(int directiveLine) throws Exception {
-
+        MessageSender.getInstance().log("CombineRecipeParser.parseRecipe(" + directiveLine + ")");
         CombineRecipe recipe = new CombineRecipe(fileFlags); // create recipe and copy flags from file
         this.reader.parseFlags(recipe.getFlags()); // parse recipe's flags
 

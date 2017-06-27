@@ -2,9 +2,11 @@ package haveric.recipeManager;
 
 import com.google.common.collect.ImmutableMap;
 import haveric.recipeManager.flag.args.Args;
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManager.flag.FlagType;
 import haveric.recipeManager.recipes.*;
 import haveric.recipeManager.tools.Tools;
+import haveric.recipeManager.tools.Version;
 import haveric.recipeManagerCommon.RMCChatColor;
 import haveric.recipeManagerCommon.recipes.RMCRecipeInfo;
 import haveric.recipeManagerCommon.recipes.RMCRecipeInfo.RecipeOwner;
@@ -295,18 +297,22 @@ public class Recipes {
      * @param info
      */
     public void registerRecipe(BaseRecipe recipe, RMCRecipeInfo info) {
+        MessageSender.getInstance().log("Recipes.registerRecipe(" + recipe.getName() + ", RMCRecipeInfo[" + info.getAdder() + "," + info.getOwner() + "])");
         if (!recipe.isValid()) {
             throw new IllegalArgumentException("Recipe is invalid! Check ingredients and results.");
         }
 
         if (index.remove(recipe) != null) {
+            MessageSender.getInstance().log("Recipes.registerRecipe(" + recipe.getName() + ", RMCRecipeInfo[" + info.getAdder() + "," + info.getOwner() + "]) - remove prior main index recipe");
             recipe.remove();
         }
 
+        MessageSender.getInstance().log("Recipes.registerRecipe(" + recipe.getName() + ", RMCRecipeInfo[" + info.getAdder() + "," + info.getOwner() + "]) - add to main index");
         index.put(recipe, info); // Add to main index
 
         // Add to quickfind index if it's not removed
         if (!recipe.hasFlag(FlagType.REMOVE)) {
+            MessageSender.getInstance().log("Recipes.registerRecipe(" + recipe.getName() + ", RMCRecipeInfo[" + info.getAdder() + "," + info.getOwner() + "]) - add to main name index");
             indexName.put(recipe.getName().toLowerCase(), recipe); // Add to name index
 
             if (recipe instanceof CraftRecipe) {
@@ -329,12 +335,19 @@ public class Recipes {
         }
 
         // Remove original recipe
-        if (recipe.hasFlag(FlagType.REMOVE) || recipe.hasFlag(FlagType.OVERRIDE)) {
+        if (recipe.hasFlag(FlagType.REMOVE) || (!Version.has1_12Support() && recipe.hasFlag(FlagType.OVERRIDE))) {
+            MessageSender.getInstance().log("Recipes.registerRecipe(" + recipe.getName() + ", RMCRecipeInfo[" + info.getAdder() + "," + info.getOwner() + "]) - Remove vanilla recipe and set as Bukkit recipe.");
             recipe.setBukkitRecipe(Vanilla.removeCustomRecipe(recipe));
         }
+        
+        // 1.12 support hook for override
+        if (Version.has1_12Support() && recipe.hasFlag(FlagType.OVERRIDE)) {
+            recipe.setBukkitRecipe(Vanilla.replaceCustomRecipe(recipe));
+        }
 
-        // Add to server if applicable
-        if (!recipe.hasFlag(FlagType.REMOVE)) {
+        // Add to server if applicable -- for 1.12, replace is entirely handled by the prior clause.
+        if (!recipe.hasFlag(FlagType.REMOVE) && (!(Version.has1_12Support() && recipe.hasFlag(FlagType.OVERRIDE)))) {
+            MessageSender.getInstance().log("Recipes.registerRecipe(" + recipe.getName() + ", RMCRecipeInfo[" + info.getAdder() + "," + info.getOwner() + "]) - set up / retrieve bukkit recipe and install");
             Recipe bukkitRecipe = recipe.getBukkitRecipe(false);
 
             if (bukkitRecipe != null) {
@@ -378,11 +391,9 @@ public class Recipes {
      * @return removed recipe or null if not found
      */
     public Recipe removeRecipe(BaseRecipe recipe) {
-        if (recipe.hasFlag(FlagType.OVERRIDE)) { //  recipe.hasFlag(FlagType.REMOVE) || 
-            //TODO: Debug
-            System.out.println("Formerly Adding recipe to remove a recipe: " + recipe.getName());
-            //TODO: End Edbug
-            //Bukkit.getServer().addRecipe(recipe.getBukkitRecipe(false));
+        MessageSender.getInstance().log("Recipes.removeRecipe(" + recipe.getName() + ")");
+        if (!Version.has1_12Support() && (recipe.hasFlag(FlagType.REMOVE) || recipe.hasFlag(FlagType.OVERRIDE))) {
+            Bukkit.getServer().addRecipe(recipe.getBukkitRecipe(false));
         }
 
         index.remove(recipe); // Remove from main index

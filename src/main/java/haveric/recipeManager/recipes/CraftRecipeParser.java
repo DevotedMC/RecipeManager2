@@ -5,6 +5,7 @@ import haveric.recipeManager.RecipeRegistrator;
 import haveric.recipeManager.Vanilla;
 import haveric.recipeManager.flag.FlagType;
 import haveric.recipeManager.flag.Flags;
+import haveric.recipeManager.messages.MessageSender;
 import haveric.recipeManager.tools.Tools;
 import haveric.recipeManager.tools.Version;
 import haveric.recipeManagerCommon.util.ParseBit;
@@ -23,9 +24,12 @@ public class CraftRecipeParser extends BaseRecipeParser {
 
     @Override
     public boolean parseRecipe(int directiveLine) throws Exception {
+        MessageSender.getInstance().log("CraftRecipeParser.parseRecipe(" + directiveLine + ")");
         CraftRecipe recipe = new CraftRecipe(fileFlags); // create recipe and copy flags from file
         this.reader.parseFlags(recipe.getFlags()); // parse recipe's flags
 
+        MessageSender.getInstance().log("CraftRecipeParser.parseRecipe() flags: " + recipe.getFlags().toString() + ")");
+        
         ItemStack[] ingredients = new ItemStack[9];
         String[] split;
         ItemStack item;
@@ -107,6 +111,7 @@ public class CraftRecipeParser extends BaseRecipeParser {
 
         // check if the recipe already exists...
         if (!this.conditionEvaluator.recipeExists(recipe, directiveLine, reader.getFileName())) {
+            MessageSender.getInstance().log("CraftRecipeParser.parseRecipe(" + directiveLine + ") recipe exists already");
             return false;
         }
 

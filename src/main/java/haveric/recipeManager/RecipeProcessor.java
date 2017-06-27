@@ -31,6 +31,7 @@ public class RecipeProcessor implements Runnable {
     private static BukkitTask task;
 
     public static void reload(CommandSender sender, boolean check) {
+        MessageSender.getInstance().log("RecipeProcessor.reload(sender, " + check + ")");
         DIR_RECIPES = RecipeManager.getPlugin().getDataFolder() + File.separator + "recipes" + File.separator;
         FILE_ERRORLOG = DIR_RECIPES + "errors.log";
         new RecipeProcessor(sender, check);
@@ -63,6 +64,7 @@ public class RecipeProcessor implements Runnable {
     }
 
     public void run() {
+        MessageSender.getInstance().log("RecipeProcessor.run() - " + check);
         final long start = System.currentTimeMillis();
 
         try {

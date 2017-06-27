@@ -23,6 +23,7 @@ public class RecipeRegistrator {
     }
     
     public void queueRecipe(BaseRecipe recipe, String adder) {
+        MessageSender.getInstance().log("RecipeRegistrator.queueRecipe(" + recipe.getName() + "," + adder + ")");
         if (recipe instanceof CraftRecipe) {
             queueRecipe(recipe, adder, "Recipe " + recipe.getName() + " is invalid! Needs at least one result and exactly 9 ingredient slots, empty ones can be null.");
         } else if (recipe instanceof CombineRecipe) {
@@ -52,6 +53,7 @@ public class RecipeRegistrator {
     }
 
     protected void registerRecipesToServer(CommandSender sender, long start) {
+        MessageSender.getInstance().log("RecipeRegistrator(sender," + start + ")");
         if (registered) {
             throw new IllegalAccessError("This class is already registered, create a new one!");
         }
@@ -62,8 +64,9 @@ public class RecipeRegistrator {
         RMCRecipeInfo info;
 
         // Remove old custom recipes/re-add old original recipes
+        
         iterator = RecipeManager.getRecipes().index.entrySet().iterator();
-
+        MessageSender.getInstance().log("RecipeRegistrator(sender," + start + ") use master index to remove RECIPEMANAGER recipes");
         while (iterator.hasNext()) {
             entry = iterator.next();
             info = entry.getValue();
@@ -82,7 +85,7 @@ public class RecipeRegistrator {
         long time;
         int processed = 0;
         int size = queuedRecipes.size();
-
+        MessageSender.getInstance().log("RecipeRegistrator(sender," + start + ") use queueRecipes to register recipes");
         while (iterator.hasNext()) {
             entry = iterator.next();
 
@@ -102,6 +105,7 @@ public class RecipeRegistrator {
         registered = true; // mark this class as registered so it doesn't get re-registered
         queuedRecipes.clear(); // clear the queue to let the class vanish
 
+        MessageSender.getInstance().log("RecipeRegistrator(sender," + start + ") use reload RecipeBooks");
         RecipeBooks.getInstance().reloadAfterRecipes(sender); // (re)create recipe books for recipes
         
         // TODO: Force-remap / reload Achievements? How do we keep achievements in sync from changes here?

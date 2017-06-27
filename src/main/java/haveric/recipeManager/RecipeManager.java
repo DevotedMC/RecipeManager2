@@ -149,6 +149,7 @@ public class RecipeManager extends JavaPlugin {
      *            Set to true to only check recipes, settings are unaffected.
      */
     public void reload(CommandSender sender, boolean check, boolean firstTime) {
+        MessageSender.getInstance().log("RecipeManager.reload(sender, " + check + ", " + firstTime + ")");
         Settings.getInstance().reload(sender); // (re)load settings
         Messages.getInstance().reload(sender); // (re)load messages from messages.yml
         Files.reload(sender); // (re)generate info files if they do not exist
@@ -296,6 +297,7 @@ public class RecipeManager extends JavaPlugin {
      * @return Recipes class
      */
     public static Recipes getRecipes() {
+        MessageSender.getInstance().log("RecipeManager.getRecipes()");
         return recipes;
     }
 
